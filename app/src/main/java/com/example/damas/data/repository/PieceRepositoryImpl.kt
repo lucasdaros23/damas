@@ -36,6 +36,9 @@ class PieceRepositoryImpl @Inject constructor(
         pieceDao.promotePiece(id)
     }
 
+    override suspend fun moveAndCapture(moveId: Int, x: Int, y: Int, captureId: Int?) =
+        pieceDao.moveAndCapture(moveId, x, y, captureId)
+
     override suspend fun clearBoard() {
         pieceDao.clearBoard()
     }

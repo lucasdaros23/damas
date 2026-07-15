@@ -3,6 +3,7 @@ package com.example.damas.data.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.damas.data.entity.PieceEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -31,4 +32,10 @@ interface PieceDao {
 
     @Query("DELETE FROM pieces")
     suspend fun clearBoard(): Int
+
+    @Transaction
+    suspend fun moveAndCapture(moveId: Int, x: Int, y: Int, captureId: Int?){
+        movePiece(moveId, x, y)
+        captureId?.let { capturePiece(it) }
+    }
 }

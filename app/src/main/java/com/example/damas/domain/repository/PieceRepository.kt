@@ -1,6 +1,5 @@
 package com.example.damas.domain.repository
 
-import com.example.damas.data.entity.PieceEntity
 import com.example.damas.domain.model.Piece
 import com.example.damas.domain.model.enums.PieceColor
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +13,7 @@ interface PieceRepository {
     suspend fun movePiece(id: Int, x: Int, y: Int)
     suspend fun capturePiece(id: Int)
     suspend fun promotePiece(id: Int)
+    suspend fun moveAndCapture(moveId: Int, x: Int, y: Int, captureId: Int?)
 
     suspend fun initializeBoard()
     suspend fun clearBoard()

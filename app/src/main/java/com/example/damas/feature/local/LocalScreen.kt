@@ -37,6 +37,7 @@ import com.example.damas.domain.model.Dialog
 import com.example.damas.domain.model.Piece
 import com.example.damas.domain.model.Square
 import com.example.damas.domain.model.enums.PieceColor
+import com.example.damas.feature.components.GenericButton
 import com.example.damas.feature.local.LocalUiEvent.ScreenEvent
 import com.example.damas.ui.theme.PieceBlack
 import com.example.damas.ui.theme.PieceWhite
@@ -86,11 +87,12 @@ private fun Screen(
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.size(10.dp))
+            val winner = uiState.getWinner()
             PieceComponent(
                 Piece(
                     x = 8,
                     y = 8,
-                    color = uiState.getTurn()
+                    color = winner ?: uiState.getTurn()
                 )
             )
         }
@@ -102,8 +104,9 @@ private fun Screen(
             squareClickedAction = { onActionEvent(LocalScreenAction.SquareClickedAction(it)) }
         )
         Spacer(Modifier.size(40.dp))
-        ResetButton(
-            resetButtonClickedAction = { onActionEvent(LocalScreenAction.ResetButtonClickedAction) }
+        GenericButton(
+            text = "reset",
+            onClick = { onActionEvent(LocalScreenAction.ResetButtonClickedAction) }
         )
     }
 }
@@ -138,7 +141,7 @@ private fun Board(
 
                     Box(
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(45.dp)
                             .background(
                                 color = if (square.isDark) SquareBlack else SquareWhite,
                                 shape = RectangleShape
@@ -193,24 +196,6 @@ private fun AvailableMoveIndicator() {
             .size(15.dp)
             .background(color = PurpleDetails, shape = CircleShape)
     )
-}
-
-@Composable
-private fun ResetButton(
-    resetButtonClickedAction: () -> Unit
-) {
-    Button(
-        modifier = Modifier
-            .width(400.dp),
-        shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = PurpleDetails,
-            contentColor = Color.White
-        ),
-        onClick = resetButtonClickedAction
-    ) {
-        Text("reset", fontWeight = FontWeight.Bold, fontSize = 30.sp)
-    }
 }
 
 @Preview(showBackground = true)

@@ -6,6 +6,8 @@ import com.example.damas.data.dao.PieceDao
 import com.example.damas.data.database.CheckersDatabase
 import com.example.damas.data.repository.PieceRepositoryImpl
 import com.example.damas.domain.repository.PieceRepository
+import com.example.damas.feature.home.HomeUiEvent
+import com.example.damas.feature.home.HomeUiState
 import com.example.damas.feature.local.LocalUiEvent
 import com.example.damas.feature.local.LocalUiState
 import dagger.Module
@@ -50,5 +52,15 @@ object AppModule {
     @Provides
     fun provideLocalUiEvent(): LocalUiEvent {
         return LocalUiEvent()
+    }
+
+    @Provides
+    fun provideHomeUiState(): HomeUiState {
+        return HomeUiState()
+    }
+
+    @Provides
+    fun provideHomeUiEvent(): HomeUiEvent {
+        return HomeUiEvent()
     }
 }

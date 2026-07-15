@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.damas.feature.local.LocalScreen
 import com.example.damas.feature.local.LocalViewModel
+import com.example.damas.navigation.NavGraph
 import com.example.damas.ui.theme.DamasTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,12 +27,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             DamasTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val localViewModel: LocalViewModel = hiltViewModel()
-                    LocalScreen(
+                    val navController = rememberNavController()
+                    NavGraph(
                         modifier = Modifier.padding(innerPadding),
-                        viewModel = localViewModel,
-                        showDialog = {},
-                        navigateBack = {}
+                        navController = navController,
+                        showDialog = {}
                     )
                 }
             }

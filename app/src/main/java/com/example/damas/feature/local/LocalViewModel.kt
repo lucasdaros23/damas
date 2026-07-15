@@ -8,13 +8,10 @@ import com.example.damas.domain.model.enums.PieceColor
 import com.example.damas.domain.repository.PieceRepository
 import com.example.damas.feature.local.LocalUiEvent.ScreenEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -72,33 +69,25 @@ class LocalViewModel @Inject constructor(
     }
 
     private fun squareClickedAction(square: Square) {
-        if (uiState.getWinner() == null) viewModelScope.launch {
+        if (uiState.getWinner() == null) viewModelScope.launch(Dispatchers.Default) {
             val selectedSquare = uiState.getSelectedSquare()
             val availableMoves = uiState.getAvailableMoves()
-            val pieces =
-                if (uiState.getTurn() == PieceColor.WHITE) whitePieces.value else blackPieces.value
+            val currentPieces = whitePieces.value + blackPieces.value
+            val turn = uiState.getTurn()
 
             val destinationMove = availableMoves.find { it.x == square.x && it.y == square.y }
-
-            val piecesCanCapture = mutableListOf<Piece>()
-            for (piece in pieces) {
-                if (getCaptureMoves(piece).isNotEmpty()) {
-                    piecesCanCapture.add(piece)
-                }
-            }
+            val piecesCanCapture = (if (turn == PieceColor.WHITE) whitePieces.value else blackPieces.value)
+                .filter { getCaptureMoves(it, currentPieces).isNotEmpty() }
 
             if (selectedSquare != null && destinationMove != null) {
                 executeMove(selectedSquare, destinationMove)
             } else {
-                val piece = getPieceByPosition(square.x, square.y)
-                if (
-                    piece != null &&
-                    piece.color == uiState.getTurn() &&
-                    selectedSquare != square &&
-                    (piecesCanCapture.isEmpty() || piecesCanCapture.contains(piece))
-                ) {
+                val piece = getPieceByPosition(square.x, square.y, currentPieces)
+                if (piece != null && piece.color == turn &&
+                    (piecesCanCapture.isEmpty() || piecesCanCapture.any { it.id == piece.id })) {
+
                     uiState.setSelectedSquare(square)
-                    val moves = calculateMovesForPiece(piece)
+                    val moves = calculateMovesForPiece(piece, currentPieces)
                     uiState.setAvailableMoves(moves)
                 } else {
                     uiState.setSelectedSquare(null)
@@ -107,76 +96,64 @@ class LocalViewModel @Inject constructor(
             }
         }
     }
-
-    private suspend fun calculateMovesForPiece(piece: Piece): List<Square> {
-        val captureMoves = getCaptureMoves(piece)
-        val simpleMoves = getSimpleMoves(piece)
-        val finalCoords = if (captureMoves.isNotEmpty()) captureMoves else simpleMoves
+    private suspend fun calculateMovesForPiece(piece: Piece, pieces: List<Piece>): List<Square> {
+        val captureMoves = getCaptureMoves(piece, pieces)
+        val simpleMoves = getSimpleMoves(piece, pieces)
+        val finalCoords = captureMoves.ifEmpty { simpleMoves }
         val currentBoard = uiState.presentation.value.board
         return finalCoords.mapNotNull { (nx, ny) ->
             currentBoard.find { it.x == nx && it.y == ny }
         }
     }
 
-    private suspend fun getSimpleMoves(piece: Piece): List<Pair<Int, Int>> = buildList {
+    private suspend fun getSimpleMoves(piece: Piece, pieces: List<Piece>): List<Pair<Int, Int>> = buildList {
         if (!piece.isKing) {
             val dy = if (piece.color == PieceColor.WHITE) -1 else 1
             for (dx in listOf(-1, 1)) {
-                val newX = piece.x + dx
-                val newY = piece.y + dy
-                if (newX in 0..7 && newY in 0..7) {
-                    val targetPiece = getPieceByPosition(newX, newY)
-                    if (targetPiece == null) {
-                        add(newX to newY)
-                    }
+                val nx = piece.x + dx
+                val ny = piece.y + dy
+                if (nx in 0..7 && ny in 0..7 && getPieceByPosition(nx, ny, pieces) == null) {
+                    add(nx to ny)
                 }
             }
         } else {
             val directions = listOf(-1 to -1, -1 to 1, 1 to -1, 1 to 1)
-            for ((dx, ddy) in directions) {
+            for ((dx, dy) in directions) {
                 var nx = piece.x + dx
-                var ny = piece.y + ddy
+                var ny = piece.y + dy
                 while (nx in 0..7 && ny in 0..7) {
-                    if (getPieceByPosition(nx, ny) == null) {
-                        add(nx to ny)
-                    } else break
+                    if (getPieceByPosition(nx, ny, pieces) == null) add(nx to ny) else break
                     nx += dx
-                    ny += ddy
+                    ny += dy
                 }
             }
         }
     }
-
-    private suspend fun getCaptureMoves(piece: Piece): List<Pair<Int, Int>> = buildList {
+    private suspend fun getCaptureMoves(piece: Piece, pieces: List<Piece>): List<Pair<Int, Int>> = buildList {
         val directions = listOf(-1 to -1, -1 to 1, 1 to -1, 1 to 1)
         for ((dx, dy) in directions) {
             if (!piece.isKing) {
-                val enemyX = piece.x + dx
-                val enemyY = piece.y + dy
-                val landingX = piece.x + (dx * 2)
-                val landingY = piece.y + (dy * 2)
-
-                if (landingX in 0..7 && landingY in 0..7) {
-                    val enemy = getPieceByPosition(enemyX, enemyY)
-                    val landing = getPieceByPosition(landingX, landingY)
-                    if (enemy != null && enemy.color != piece.color && landing == null) {
-                        add(landingX to landingY)
-                    }
+                val ex = piece.x + dx
+                val ey = piece.y + dy
+                val lx = piece.x + (dx * 2)
+                val ly = piece.y + (dy * 2)
+                if (lx in 0..7 && ly in 0..7) {
+                    val enemy = getPieceByPosition(ex, ey, pieces)
+                    val landing = getPieceByPosition(lx, ly, pieces)
+                    if (enemy != null && enemy.color != piece.color && landing == null) add(lx to ly)
                 }
             } else {
                 var nx = piece.x + dx
                 var ny = piece.y + dy
-                var foundEnemy = false
+                var foundEnemy: Piece? = null
                 while (nx in 0..7 && ny in 0..7) {
-                    val target = getPieceByPosition(nx, ny)
-                    if (!foundEnemy) {
+                    val target = getPieceByPosition(nx, ny, pieces)
+                    if (foundEnemy == null) {
                         if (target != null) {
-                            if (target.color != piece.color) foundEnemy = true
-                            else break
+                            if (target.color != piece.color) foundEnemy = target else break
                         }
                     } else {
-                        if (target == null) add(nx to ny)
-                        else break
+                        if (target == null) add(nx to ny) else break
                     }
                     nx += dx
                     ny += dy
@@ -184,7 +161,6 @@ class LocalViewModel @Inject constructor(
             }
         }
     }
-
     private fun initFillBoard() {
         viewModelScope.launch {
             combine(whitePieces, blackPieces) { white, black ->
@@ -196,63 +172,56 @@ class LocalViewModel @Inject constructor(
     }
 
     private fun fillBoard(pieces: List<Piece>) {
-        viewModelScope.launch {
-            uiState.fillBoard(
-                buildList {
-                    for (index in 0..63) {
-                        val x = index % 8
-                        val y = index / 8
-                        add(
-                            Square(
-                                x = x,
-                                y = y,
-                                piece = pieces.find { it.x == x && it.y == y }
-                            )
-                        )
-                    }
-                }
-            )
-        }
+        uiState.fillBoard(
+            List(64) { index ->
+                val x = index % 8
+                val y = index / 8
+                Square(x, y, pieces.find { it.x == x && it.y == y })
+            }
+        )
     }
 
     private suspend fun executeMove(from: Square, to: Square) {
         val piece = from.piece ?: return
         val dx = to.x - from.x
         val dy = to.y - from.y
+        val currentPieces = whitePieces.value + blackPieces.value
 
         var pieceJumped: Piece? = null
         if (abs(dx) >= 2) {
-            val stepX = dx / abs(dx)
-            val stepY = dy / abs(dy)
-            var checkX = from.x + stepX
-            var checkY = from.y + stepY
-            while (checkX != to.x) {
-                val p = getPieceByPosition(checkX, checkY)
-                if (p != null) {
-                    pieceJumped = p
-                    break
-                }
-                checkX += stepX
-                checkY += stepY
+            val sx = dx / abs(dx)
+            val sy = dy / abs(dy)
+            var cx = from.x + sx
+            var cy = from.y + sy
+            while (cx != to.x) {
+                val p = getPieceByPosition(cx, cy, currentPieces)
+                if (p != null) { pieceJumped = p; break }
+                cx += sx; cy += sy
             }
         }
 
-        movePiece(piece.id, to.x, to.y)
-        pieceJumped?.let { capturePiece(it.id) }
-        val wasCapture = pieceJumped != null
+        moveAndCapture(piece.id, to.x, to.y, pieceJumped?.id)
 
+        val wasCapture = pieceJumped != null
         val movedPiece = piece.copy(x = to.x, y = to.y)
-        val pieceCanStillCapture =
-            if (wasCapture) getCaptureMoves(movedPiece).isNotEmpty() else false
-        val nextTurn = if (pieceCanStillCapture) uiState.getTurn() else
-            if (uiState.getTurn() == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        val piecesAfterMove = currentPieces
+            .filter { it.id != pieceJumped?.id }
+            .map { if (it.id == piece.id) movedPiece else it }
+
+        val pieceCanStillCapture = if (wasCapture) {
+            getCaptureMoves(movedPiece, piecesAfterMove).isNotEmpty()
+        } else false
+
+        val nextTurn = if (pieceCanStillCapture) uiState.getTurn()
+        else if (uiState.getTurn() == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+
         uiState.setTurn(nextTurn)
         uiState.setSelectedSquare(if (pieceCanStillCapture) to.copy(piece = movedPiece) else null)
-        uiState.setAvailableMoves(if (pieceCanStillCapture) calculateMovesForPiece(movedPiece) else emptyList())
-        if (!pieceCanStillCapture) makeKing(movedPiece)
-        checkWin()
-    }
+        uiState.setAvailableMoves(if (pieceCanStillCapture) calculateMovesForPiece(movedPiece, piecesAfterMove) else emptyList())
 
+        if (!pieceCanStillCapture) makeKing(movedPiece)
+        checkWin(piecesAfterMove)
+    }
     private suspend fun makeKing(piece: Piece) {
         if (
             (piece.color == PieceColor.WHITE && piece.y == 0) ||
@@ -260,16 +229,24 @@ class LocalViewModel @Inject constructor(
         ) promotePiece(piece.id)
     }
 
-    private fun checkWin() {
-        if (whitePieces.value.isEmpty())uiState.setWinner(PieceColor.BLACK)
-        if (blackPieces.value.isEmpty())uiState.setWinner(PieceColor.WHITE)
+    private suspend fun checkWin(pieces: List<Piece>) {
+        val currentTurn = uiState.getTurn()
+        val otherColor = if (currentTurn == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+
+        val filteredPieces = pieces.filter { it.color == currentTurn }
+        if (filteredPieces.isEmpty()) {
+            uiState.setWinner(otherColor)
+            return
+        }
+        val canMove = filteredPieces.any { calculateMovesForPiece(it, pieces).isNotEmpty() }
+        if (!canMove) {
+            uiState.setWinner(otherColor)
+        }
     }
 
-    private suspend fun getPieceByPosition(x: Int, y: Int): Piece? = repository.getPieceByPosition(x, y)
-
-    private suspend fun movePiece(id: Int, x: Int, y: Int) = repository.movePiece(id, x, y)
-
-    private suspend fun capturePiece(id: Int) = repository.capturePiece(id)
+    private fun getPieceByPosition(x: Int, y: Int, pieces: List<Piece>): Piece? =
+        pieces.find { it.x == x && it.y == y && it.isAlive }
+    private suspend fun moveAndCapture(moveId: Int, x: Int, y: Int, captureId: Int?) = repository.moveAndCapture(moveId, x, y, captureId)
 
     private suspend fun promotePiece(id: Int) = repository.promotePiece(id)
 }

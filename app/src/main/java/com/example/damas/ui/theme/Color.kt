@@ -13,7 +13,7 @@ val Pink40 = Color(0xFF7D5260)
 val SquareBlack = Color(0xFF252525)
 val PieceBlack = Color(0xFF4B4B4B)
 
-val SquareWhite = Color(0xF0C4C4C4)
-val PieceWhite = Color(0xF09B9B9B)
+val SquareWhite = Color(0xF0D9D9D9)
+val PieceWhite = Color(0xF0C2C2C2)
 
 val PurpleDetails = Color(0xFF874CD5)

@@ -6,7 +6,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
 import com.example.damas.domain.model.Dialog
 import com.example.damas.feature.home.HomeScreen
 import com.example.damas.feature.home.HomeViewModel

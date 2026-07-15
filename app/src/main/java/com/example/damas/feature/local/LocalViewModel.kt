@@ -106,7 +106,7 @@ class LocalViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getSimpleMoves(piece: Piece, pieces: List<Piece>): List<Pair<Int, Int>> = buildList {
+    private fun getSimpleMoves(piece: Piece, pieces: List<Piece>): List<Pair<Int, Int>> = buildList {
         if (!piece.isKing) {
             val dy = if (piece.color == PieceColor.WHITE) -1 else 1
             for (dx in listOf(-1, 1)) {
@@ -129,7 +129,7 @@ class LocalViewModel @Inject constructor(
             }
         }
     }
-    private suspend fun getCaptureMoves(piece: Piece, pieces: List<Piece>): List<Pair<Int, Int>> = buildList {
+    private fun getCaptureMoves(piece: Piece, pieces: List<Piece>): List<Pair<Int, Int>> = buildList {
         val directions = listOf(-1 to -1, -1 to 1, 1 to -1, 1 to 1)
         for ((dx, dy) in directions) {
             if (!piece.isKing) {

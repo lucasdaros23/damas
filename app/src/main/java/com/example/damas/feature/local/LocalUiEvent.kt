@@ -1,7 +1,6 @@
 package com.example.damas.feature.local
 
 import com.example.damas.core.UiEvent
-import com.example.damas.domain.model.Dialog
 import com.example.damas.feature.local.LocalUiEvent.ScreenEvent
 import javax.inject.Inject
 

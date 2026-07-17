@@ -21,10 +21,16 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun listButtonClickedAction(index: Int){
-        fun closeDialog() = uiState.showDialog(null)
+        fun closeDialog() = uiState.update { it.copy(activeDialog = null) }
         when(index){
             0 -> uiEvent.send(ScreenEvent.Navigate(Routes.LOCAL))
-            1, 2 -> uiState.showDialog(dialogProvider.inexistentNavigation(onConfirm = { closeDialog() }))
+            1, 2 -> uiState.update {
+                it.copy(
+                    activeDialog = dialogProvider.inexistentNavigation(
+                        onConfirm = { closeDialog() }
+                    )
+                )
+            }
         }
     }
 

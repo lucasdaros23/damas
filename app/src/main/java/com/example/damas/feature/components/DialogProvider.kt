@@ -1,6 +1,5 @@
 package com.example.damas.feature.components
 
-import com.example.damas.core.ResourceProvider
 import com.example.damas.domain.model.Dialog
 import com.example.damas.resources.CheckersStrings
 import javax.inject.Inject

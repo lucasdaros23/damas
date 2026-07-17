@@ -2,7 +2,6 @@ package com.example.damas.feature.local
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.damas.domain.model.Dialog
 import com.example.damas.domain.model.Piece
 import com.example.damas.domain.model.Square
 import com.example.damas.domain.model.enums.PieceColor
@@ -18,9 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.div
 import kotlin.math.abs
-import kotlin.rem
 
 @HiltViewModel
 class LocalViewModel @Inject constructor(

@@ -8,8 +8,5 @@ import javax.inject.Inject
 class LocalUiEvent @Inject constructor() : UiEvent<ScreenEvent>(){
     sealed interface ScreenEvent {
         object NavigateBack : ScreenEvent
-        data class ShowDialog(
-            val dialog: Dialog
-        ) : ScreenEvent
     }
 }

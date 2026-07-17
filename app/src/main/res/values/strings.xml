@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">damas</string>
+    <!-- HOME -->
+    <string name="home_local_game_button">Jogar Local</string>
+    <string name="home_online_game_button">Jogar Online</string>
+    <string name="home_computer_game_button">Jogar vs Computador</string>
+
+    <!-- LOCAL -->
+    <string name="local_title_turn">Vez de</string>
+    <string name="local_title_winner">Vitória de</string>
+    <string name="local_reset_button">Reset</string>
+
+    <!-- DIALOGS -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancelar</string>
+
+    <string name="dialog_inexistent_navigation_title">Esta funcão ainda não foi implementada</string>
+    <string name="dialog_inexistent_navigation_message">Tente jogar no modo local</string>
+    <string name="dialog_reset_title">Deseja reiniciar o jogo</string>
+    <string name="dialog_reset_message">Esta ação não pode ser revertida</string>
 </resources>

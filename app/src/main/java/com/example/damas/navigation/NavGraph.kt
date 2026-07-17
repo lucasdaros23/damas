@@ -16,7 +16,6 @@ import com.example.damas.feature.local.LocalViewModel
 fun NavGraph(
     modifier: Modifier,
     navController: NavHostController,
-    showDialog: (Dialog) -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -27,7 +26,6 @@ fun NavGraph(
             LocalScreen(
                 modifier = modifier,
                 viewModel = localViewModel,
-                showDialog = showDialog,
                 navigateBack = { navController.popBackStack() }
             )
         }
@@ -36,7 +34,6 @@ fun NavGraph(
             HomeScreen(
                 modifier = modifier,
                 viewModel = homeViewModel,
-                showDialog = showDialog,
                 navigateBack = { navController.popBackStack() },
                 navigate = { navController.navigate(it) }
             )

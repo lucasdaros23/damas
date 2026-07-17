@@ -33,6 +33,8 @@ import com.example.damas.domain.model.Piece
 import com.example.damas.domain.model.Square
 import com.example.damas.domain.model.enums.PieceColor
 import com.example.damas.feature.components.GenericButton
+import com.example.damas.feature.components.ReturnButton
+import com.example.damas.feature.components.dialog.ScreenDialog
 import com.example.damas.feature.local.LocalUiEvent.ScreenEvent
 import com.example.damas.ui.theme.PieceBlack
 import com.example.damas.ui.theme.PieceWhite
@@ -45,7 +47,6 @@ import com.example.damas.ui.theme.SquareWhite
 fun LocalScreen(
     modifier: Modifier,
     viewModel: LocalViewModel,
-    showDialog: (Dialog) -> Unit,
     navigateBack: () -> Unit,
 ) {
     Screen(
@@ -55,7 +56,6 @@ fun LocalScreen(
     )
     EventConsumer(
         viewModel = viewModel,
-        showDialog = showDialog,
         navigateBack = navigateBack
     )
 }
@@ -68,40 +68,47 @@ private fun Screen(
 ) {
     val presentation by uiState.presentation.collectAsStateWithLifecycle()
     Column(
-        modifier = modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = modifier.fillMaxSize(),
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center
+        ReturnButton(onClick = { onActionEvent(LocalScreenAction.CloseButtonClickedAction) } )
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                if (presentation.winner == null) "vez de" else "vitoria de",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.size(10.dp))
-            val winner = uiState.getWinner()
-            PieceComponent(
-                Piece(
-                    x = 8,
-                    y = 8,
-                    color = winner ?: uiState.getTurn()
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    presentation.titleMessage,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
                 )
+                Spacer(Modifier.size(10.dp))
+                val winner = presentation.winner
+                PieceComponent(
+                    Piece(
+                        x = 8,
+                        y = 8,
+                        color = winner ?: presentation.turn
+                    )
+                )
+            }
+            Spacer(Modifier.size(20.dp))
+            Board(
+                board = presentation.board,
+                availableMoves = presentation.availableMoves,
+                selectedSquare = presentation.selectedSquare,
+                squareClickedAction = { onActionEvent(LocalScreenAction.SquareClickedAction(it)) }
+            )
+            Spacer(Modifier.size(40.dp))
+            GenericButton(
+                text = "reset",
+                onClick = { onActionEvent(LocalScreenAction.ResetButtonClickedAction) }
             )
         }
-        Spacer(Modifier.size(20.dp))
-        Board(
-            board = presentation.board,
-            availableMoves = presentation.availableMoves,
-            selectedSquare = presentation.selectedSquare,
-            squareClickedAction = { onActionEvent(LocalScreenAction.SquareClickedAction(it)) }
-        )
-        Spacer(Modifier.size(40.dp))
-        GenericButton(
-            text = "reset",
-            onClick = { onActionEvent(LocalScreenAction.ResetButtonClickedAction) }
+        LocalScreenDialog(
+            dialog = presentation.activeDialog
         )
     }
 }
@@ -109,12 +116,10 @@ private fun Screen(
 @Composable
 private fun EventConsumer(
     viewModel: LocalViewModel,
-    showDialog: (Dialog) -> Unit,
     navigateBack: () -> Unit
 ) = LaunchedEffect(Unit) {
     viewModel.uiEvent.collect { event ->
         when (event) {
-            is ScreenEvent.ShowDialog -> showDialog(event.dialog)
             ScreenEvent.NavigateBack -> navigateBack()
         }
     }
@@ -132,7 +137,8 @@ private fun Board(
             Row {
                 row.forEach { square ->
                     val isAvailable = availableMoves.any { it.x == square.x && it.y == square.y }
-                    val isSelected = selectedSquare?.let { it.x == square.x && it.y == square.y } ?: false
+                    val isSelected =
+                        selectedSquare?.let { it.x == square.x && it.y == square.y } ?: false
 
                     Box(
                         modifier = Modifier
@@ -200,20 +206,29 @@ private fun ScreenPreview() {
         modifier = Modifier,
         { },
         LocalUiState().apply {
-            fillBoard(
-                buildList {
-                    for (i in 0..63) {
-                        add(
-                            Square(
-                                x = i % 8,
-                                y = i / 8
+            update {
+                it.copy(
+                    board = buildList {
+                        for (i in 0..63) {
+                            add(
+                                Square(
+                                    x = i % 8,
+                                    y = i / 8
+                                )
                             )
-                        )
-                    }
-                }
-            )
+                        }
+                    },
+                    resetButtonText = "Reset",
+                    titleMessage = "Vez de "
+                )
+            }
         }
     )
+}
+
+@Composable
+private fun LocalScreenDialog(dialog: Dialog?) {
+    dialog?.let { ScreenDialog(dialog = dialog) }
 }
 
 @Preview

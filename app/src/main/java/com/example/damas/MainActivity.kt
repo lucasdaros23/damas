@@ -25,7 +25,6 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         modifier = Modifier.padding(innerPadding),
                         navController = navController,
-                        showDialog = {}
                     )
                 }
             }

@@ -1,6 +1,7 @@
 package com.example.damas.feature.home
 
 import androidx.lifecycle.ViewModel
+import com.example.damas.feature.components.DialogProvider
 import com.example.damas.feature.home.HomeUiEvent.ScreenEvent
 import com.example.damas.navigation.Routes
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     val uiState: HomeUiState,
     val uiEvent: HomeUiEvent,
+    private val dialogProvider: DialogProvider,
 ) : ViewModel(){
     fun onActionEvent(action: HomeScreenAction) {
         action.fold(
@@ -17,15 +19,15 @@ class HomeViewModel @Inject constructor(
             closeButtonClickedAction = ::closeButtonClickedAction
         )
     }
+
     private fun listButtonClickedAction(index: Int){
-        val route = when(index){
-            0 -> Routes.LOCAL
-            1 -> Routes.ONLINE
-            2 -> Routes.COMPUTER
-            else -> ""
+        fun closeDialog() = uiState.showDialog(null)
+        when(index){
+            0 -> uiEvent.send(ScreenEvent.Navigate(Routes.LOCAL))
+            1, 2 -> uiState.showDialog(dialogProvider.inexistentNavigation(onConfirm = { closeDialog() }))
         }
-        uiEvent.send(event = ScreenEvent.Navigate(route))
     }
+
     private fun closeButtonClickedAction(){
         uiEvent.send(event = ScreenEvent.NavigateBack)
     }

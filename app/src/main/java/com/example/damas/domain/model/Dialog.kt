@@ -1,8 +1,10 @@
 package com.example.damas.domain.model
 
 data class Dialog(
-    val message: String,
+    val title: String? = null,
+    val message: String? = null,
     val confirmText: String? = null,
     val cancelText: String? = null,
-    val onConfirm: () -> Unit,
+    val onConfirm: () -> Unit = {},
+    val onCancel: () -> Unit = {},
 )

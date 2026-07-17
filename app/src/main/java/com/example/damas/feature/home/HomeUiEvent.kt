@@ -9,10 +9,6 @@ class HomeUiEvent @Inject constructor() : UiEvent<ScreenEvent>(){
     sealed interface ScreenEvent {
         object NavigateBack : ScreenEvent
         data class Navigate(val route: String): ScreenEvent
-
-        data class ShowDialog(
-            val dialog: Dialog
-        ) : ScreenEvent
     }
 
 }

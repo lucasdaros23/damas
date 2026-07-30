@@ -24,11 +24,10 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.damas.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.damas.domain.model.Dialog
+import com.example.damas.domain.model.DialogModel
 import com.example.damas.domain.model.Piece
 import com.example.damas.domain.model.Square
 import com.example.damas.domain.model.enums.PieceColor
@@ -36,6 +35,7 @@ import com.example.damas.feature.components.GenericButton
 import com.example.damas.feature.components.ReturnButton
 import com.example.damas.feature.components.dialog.ScreenDialog
 import com.example.damas.feature.local.LocalUiEvent.ScreenEvent
+import com.example.damas.resources.Size
 import com.example.damas.ui.theme.PieceBlack
 import com.example.damas.ui.theme.PieceWhite
 import com.example.damas.ui.theme.PurpleDetails
@@ -84,7 +84,7 @@ private fun Screen(
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.size(10.dp))
+                Spacer(Modifier.size(Size.sm1))
                 val winner = presentation.winner
                 PieceComponent(
                     Piece(
@@ -94,21 +94,22 @@ private fun Screen(
                     )
                 )
             }
-            Spacer(Modifier.size(20.dp))
+            Spacer(Modifier.size(Size.sm4))
             Board(
                 board = presentation.board,
                 availableMoves = presentation.availableMoves,
                 selectedSquare = presentation.selectedSquare,
                 squareClickedAction = { onActionEvent(LocalScreenAction.SquareClickedAction(it)) }
             )
-            Spacer(Modifier.size(40.dp))
+            Spacer(Modifier.size(Size.md2))
             GenericButton(
                 text = "reset",
                 onClick = { onActionEvent(LocalScreenAction.ResetButtonClickedAction) }
             )
         }
         LocalScreenDialog(
-            dialog = presentation.activeDialog
+            dialog = presentation.activeDialog,
+            onActionEvent = onActionEvent
         )
     }
 }
@@ -139,17 +140,16 @@ private fun Board(
                     val isAvailable = availableMoves.any { it.x == square.x && it.y == square.y }
                     val isSelected =
                         selectedSquare?.let { it.x == square.x && it.y == square.y } ?: false
-
                     Box(
                         modifier = Modifier
-                            .size(45.dp)
+                            .size(Size.lg1)
                             .background(
                                 color = if (square.isDark) SquareBlack else SquareWhite,
                                 shape = RectangleShape
                             )
                             .border(
                                 shape = RectangleShape,
-                                width = 3.dp,
+                                width = Size.xs3,
                                 color = if (isSelected) PurpleDetails else Color.Transparent
                             )
                             .clickable {
@@ -173,12 +173,12 @@ private fun Board(
 private fun PieceComponent(piece: Piece) {
     Box(
         modifier = Modifier
-            .size(35.dp)
+            .size(Size.md3)
             .background(
                 color = if (piece.color == PieceColor.WHITE) PieceWhite else PieceBlack,
                 shape = CircleShape
             )
-            .padding(5.dp)
+            .padding(Size.xs2)
     ) {
         if (piece.isKing) {
             Icon(
@@ -194,7 +194,7 @@ private fun PieceComponent(piece: Piece) {
 private fun AvailableMoveIndicator() {
     Box(
         modifier = Modifier
-            .size(15.dp)
+            .size(Size.sm2)
             .background(color = PurpleDetails, shape = CircleShape)
     )
 }
@@ -227,8 +227,17 @@ private fun ScreenPreview() {
 }
 
 @Composable
-private fun LocalScreenDialog(dialog: Dialog?) {
-    dialog?.let { ScreenDialog(dialog = dialog) }
+private fun LocalScreenDialog(
+    dialog: DialogModel?,
+    onActionEvent: (LocalScreenAction) -> Unit
+) {
+    dialog?.let {
+        ScreenDialog(
+            dialog = dialog,
+            onConfirm = { onActionEvent(LocalScreenAction.DialogConfirmAction) },
+            onCancel = { onActionEvent(LocalScreenAction.DialogCancelAction) },
+        )
+    }
 }
 
 @Preview

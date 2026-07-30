@@ -7,4 +7,5 @@ object Routes {
     const val COMPUTER = "computer"
     const val ACCOUNT = "account"
     const val LOGIN = "login"
+    const val REGISTER = "register"
 }

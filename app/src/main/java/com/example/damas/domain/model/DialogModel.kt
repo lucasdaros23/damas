@@ -1,10 +1,13 @@
 package com.example.damas.domain.model
 
-data class Dialog(
+import com.example.damas.feature.components.dialog.SharedDialogType
+
+data class DialogModel(
+    val type: DialogType = SharedDialogType.Default,
     val title: String? = null,
     val message: String? = null,
     val confirmText: String? = null,
     val cancelText: String? = null,
-    val onConfirm: () -> Unit = {},
-    val onCancel: () -> Unit = {},
 )
+
+interface DialogType

@@ -13,6 +13,8 @@ import com.example.damas.feature.home.HomeUiEvent
 import com.example.damas.feature.home.HomeUiState
 import com.example.damas.feature.local.LocalUiEvent
 import com.example.damas.feature.local.LocalUiState
+import com.example.damas.feature.login.LoginUiEvent
+import com.example.damas.feature.login.LoginUiState
 import com.example.damas.resources.CheckersStrings
 import dagger.Module
 import dagger.Provides
@@ -58,6 +60,12 @@ object AppModule {
 
     @Provides
     fun provideHomeUiEvent(): HomeUiEvent = HomeUiEvent()
+
+    @Provides
+    fun provideLoginUiState(strings: CheckersStrings): LoginUiState = LoginUiState()
+
+    @Provides
+    fun provideLoginUiEvent(): LoginUiEvent = LoginUiEvent()
 
     @Provides
     fun provideResourceProvider(context: Application): ResourceProvider = ResourceProviderImpl(context)

@@ -1,9 +1,19 @@
 <resources>
     <string name="app_name">damas</string>
+    <!--  LOGIN  -->
+    <string name="login_user_text_field_label">Digite o email ou nome de usuário</string>
+    <string name="login_password_text_field_label">Digite a senha</string>
+    <string name="login_forgot_password_text">Redefinir senha</string>
+    <string name="login_create_account_text">Criar conta</string>
+    <string name="login_enter_as_guest_text">Entrar como convidado</string>
+    <string name="login_confirm_button_text">Entrar</string>
+    <string name="login_dialog_inexistent_navigation_message">Tente entrar como convidado</string>
+
     <!-- HOME -->
     <string name="home_local_game_button">Jogar Local</string>
     <string name="home_online_game_button">Jogar Online</string>
     <string name="home_computer_game_button">Jogar vs Computador</string>
+    <string name="home_dialog_inexistent_navigation_message">Tente jogar no modo local</string>
 
     <!-- LOCAL -->
     <string name="local_title_turn">Vez de</string>
@@ -15,7 +25,6 @@
     <string name="dialog_cancel">Cancelar</string>
 
     <string name="dialog_inexistent_navigation_title">Esta funcão ainda não foi implementada</string>
-    <string name="dialog_inexistent_navigation_message">Tente jogar no modo local</string>
     <string name="dialog_reset_title">Deseja reiniciar o jogo</string>
     <string name="dialog_reset_message">Esta ação não pode ser revertida</string>
 </resources>

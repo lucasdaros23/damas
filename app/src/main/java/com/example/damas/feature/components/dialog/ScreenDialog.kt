@@ -12,29 +12,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.damas.domain.model.Dialog
+import com.example.damas.domain.model.DialogModel
+import com.example.damas.feature.components.GenericTextButton
+import com.example.damas.resources.Size
 import com.example.damas.ui.theme.PurpleDetails
 
 @Composable
-fun ScreenDialog(dialog: Dialog) {
+fun ScreenDialog(
+    dialog: DialogModel,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit,
+) {
     Dialog(
-        onDismissRequest = dialog.onCancel,
+        onDismissRequest = onCancel,
         content = {
             Surface(
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(Size.md1),
                 color = MaterialTheme.colorScheme.background,
-                border = BorderStroke(width = 1.dp, color = PurpleDetails.copy(alpha = .3f))
+                border = BorderStroke(width = Size.xs1, color = PurpleDetails.copy(alpha = .3f))
             ) {
                 Column(
                     Modifier
-                        .padding(20.dp)
+                        .padding(Size.sm3)
                 ) {
                     with(dialog) {
                         title?.let {
@@ -44,7 +47,7 @@ fun ScreenDialog(dialog: Dialog) {
                             )
                         }
                         message?.let {
-                            Spacer(Modifier.size(10.dp))
+                            Spacer(Modifier.size(Size.sm1))
                             Text(
                                 text = message,
                                 style = MaterialTheme.typography.bodyMedium
@@ -55,16 +58,14 @@ fun ScreenDialog(dialog: Dialog) {
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             cancelText?.let {
-                                AlertDialogTextButton(
-                                    onClick = dialog.onCancel,
-                                    color = PurpleDetails,
+                                GenericTextButton(
+                                    onClick = onCancel,
                                     text = cancelText
                                 )
                             }
                             confirmText?.let {
-                                AlertDialogTextButton(
+                                GenericTextButton(
                                     onClick = onConfirm,
-                                    color = PurpleDetails,
                                     text = confirmText
                                 )
                             }
@@ -77,27 +78,12 @@ fun ScreenDialog(dialog: Dialog) {
     )
 }
 
-@Composable
-private fun AlertDialogTextButton(
-    onClick: () -> Unit,
-    color: Color,
-    text: String
-) {
-    TextButton(
-        onClick = onClick,
-    ) {
-        Text(
-            text,
-            style = MaterialTheme.typography.titleMedium,
-            color = color
-        )
-    }
-}
-
 @Preview
 @Composable
 private fun ScreenDialogPreview() {
     ScreenDialog(
-        Dialog(),
+        DialogModel(),
+        {},
+        {}
     )
 }

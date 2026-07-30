@@ -6,7 +6,7 @@ import com.example.damas.domain.model.Piece
 import com.example.damas.domain.model.Square
 import com.example.damas.domain.model.enums.PieceColor
 import com.example.damas.domain.repository.PieceRepository
-import com.example.damas.feature.components.DialogProvider
+import com.example.damas.feature.components.dialog.DialogProvider
 import com.example.damas.feature.local.LocalUiEvent.ScreenEvent
 import com.example.damas.resources.CheckersStrings
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -45,25 +45,22 @@ class LocalViewModel @Inject constructor(
                 initialValue = emptyList(),
             )
 
-    init {
-        setup()
-    }
+    init { setup() }
 
-    fun setup() {
+    private fun setup() {
         uiState.update { it.copy(resetButtonText = strings.getLocalResetButton()) }
         initFillBoard()
         startGame()
     }
 
-    fun onActionEvent(action: LocalScreenAction) {
+    fun onActionEvent(action: LocalScreenAction) =
         action.fold(
             resetButtonClickedAction = ::resetButtonClickedAction,
             closeButtonClickedAction = ::closeButtonClickedAction,
             squareClickedAction = ::squareClickedAction,
-            resetButtonAlertCancelAction = ::resetButtonAlertCancelAction,
-            resetButtonAlertConfirmAction = ::startGame
+            dialogCancelAction = ::dialogCancelAction,
+            dialogConfirmAction = ::dialogConfirmAction,
         )
-    }
 
     private fun startGame() {
         viewModelScope.launch {
@@ -85,16 +82,19 @@ class LocalViewModel @Inject constructor(
     private fun closeButtonClickedAction() =
         uiEvent.send(ScreenEvent.NavigateBack)
 
-    private fun resetButtonAlertCancelAction() =
+    private fun dialogCancelAction() =
         uiState.update { it.copy(activeDialog = null) }
+
+    private fun dialogConfirmAction() =
+        when (uiState.presentation.value.activeDialog?.type) {
+            LocalDialogType.Reset -> startGame()
+            else -> dialogCancelAction()
+        }
 
     private fun resetButtonClickedAction() =
         uiState.update {
             it.copy(
-                activeDialog = dialogProvider.reset(
-                    onConfirm = { onActionEvent(LocalScreenAction.ResetButtonAlertConfirmAction) },
-                    onCancel = { onActionEvent(LocalScreenAction.ResetButtonAlertCancelAction) },
-                )
+                activeDialog = dialogProvider.reset()
             )
         }
 
@@ -288,7 +288,6 @@ class LocalViewModel @Inject constructor(
     }
 
     private fun checkWin(pieces: List<Piece>) {
-        // botar pro bgl trocar de string la, e dps alterar a screen pra tirar as string hardcode
         val currentTurn = uiState.presentation.value.turn
         val otherColor = if (currentTurn == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
 

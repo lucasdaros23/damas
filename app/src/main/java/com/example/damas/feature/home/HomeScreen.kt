@@ -11,14 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.damas.core.getResourceProvider
-import com.example.damas.domain.model.Dialog
+import com.example.damas.domain.model.DialogModel
 import com.example.damas.feature.components.GenericButton
 import com.example.damas.feature.components.dialog.ScreenDialog
 import com.example.damas.feature.home.HomeUiEvent.ScreenEvent
 import com.example.damas.resources.CheckersStrings
+import com.example.damas.resources.Size
 
 @Composable
 fun HomeScreen(
@@ -45,7 +45,7 @@ private fun Screen(
     modifier: Modifier,
     uiState: HomeUiState,
     onActionEvent: (HomeScreenAction) -> Unit,
-    ) {
+) {
     val presentation by uiState.presentation.collectAsStateWithLifecycle()
     Column(
         modifier = modifier.fillMaxSize(),
@@ -53,14 +53,17 @@ private fun Screen(
         verticalArrangement = Arrangement.Center
     ) {
         presentation.buttons.forEachIndexed { index, text ->
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(Size.sm1))
             GenericButton(
                 text = text,
                 onClick = { onActionEvent(HomeScreenAction.ListButtonClickedAction(index)) }
             )
         }
     }
-    HomeScreenDialog(dialog = presentation.activeDialog)
+    HomeScreenDialog(
+        dialog = presentation.activeDialog,
+        onActionEvent = onActionEvent,
+    )
 }
 
 @Composable
@@ -78,8 +81,17 @@ private fun EventConsumer(
 }
 
 @Composable
-private fun HomeScreenDialog(dialog: Dialog?) {
-    dialog?.let { ScreenDialog(dialog = dialog) }
+private fun HomeScreenDialog(
+    dialog: DialogModel?,
+    onActionEvent: (HomeScreenAction) -> Unit,
+) {
+    dialog?.let {
+        ScreenDialog(
+            dialog = dialog,
+            onConfirm = { onActionEvent(HomeScreenAction.DialogConfirmAction) },
+            onCancel = { onActionEvent(HomeScreenAction.DialogCancelAction) },
+        )
+    }
 }
 
 @Preview

@@ -1,6 +1,6 @@
 package com.example.damas.feature.home
 
-import com.example.damas.domain.model.Dialog
+import com.example.damas.domain.model.DialogModel
 import com.example.damas.resources.CheckersStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,6 +24,6 @@ class HomeUiState @Inject constructor(
 
     data class Presentation(
         val buttons: List<String> = emptyList(),
-        val activeDialog: Dialog? = null,
+        val activeDialog: DialogModel? = null,
     )
 }

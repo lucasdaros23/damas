@@ -12,12 +12,25 @@ import com.example.damas.feature.local.LocalScreen
 import com.example.damas.feature.local.LocalViewModel
 import com.example.damas.feature.login.LoginScreen
 import com.example.damas.feature.login.LoginViewModel
+import com.example.damas.feature.register.RegisterScreen
+import com.example.damas.feature.register.RegisterViewModel
 
 @Composable
 fun NavGraph(
     modifier: Modifier,
     navController: NavHostController,
 ) {
+    fun navigateBack() = navController.popBackStack()
+
+    fun navigate(route: String) = navController.navigate(route)
+
+    fun navigateAndClearBackStack(route: String) =
+        navController.navigate(route) {
+            popUpTo(navController.graph.startDestinationId) {
+                inclusive = true
+            }
+        }
+
     NavHost(
         navController = navController,
         startDestination = Routes.LOGIN
@@ -27,7 +40,7 @@ fun NavGraph(
             LocalScreen(
                 modifier = modifier,
                 viewModel = localViewModel,
-                navigateBack = { navController.popBackStack() }
+                navigateBack = { navigateBack() }
             )
         }
         composable(Routes.HOME){
@@ -36,7 +49,7 @@ fun NavGraph(
                 modifier = modifier,
                 viewModel = homeViewModel,
                 navigateBack = { navController.popBackStack() },
-                navigate = { navController.navigate(it) }
+                navigate = { navigate(it) }
             )
         }
         composable(Routes.LOGIN) {
@@ -44,16 +57,18 @@ fun NavGraph(
             LoginScreen (
                 modifier = modifier,
                 viewModel = loginViewModel,
-                navigate = { navController.navigate(it) },
-                navigateAndClearBackStack = {
-                    navController.navigate(it) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            inclusive = true
-                        }
-                    }
-                }
+                navigate = { navigate(it) },
+                navigateAndClearBackStack = { navigateAndClearBackStack(it) }
+            )
+        }
+        composable(Routes.REGISTER) {
+            val registerViewModel: RegisterViewModel = hiltViewModel()
+            RegisterScreen(
+                modifier = modifier,
+                viewModel = registerViewModel,
+                navigateBack = { navigateBack() },
+                navigateAndClearBackStack = { navigateAndClearBackStack(it) }
             )
         }
     }
-
 }

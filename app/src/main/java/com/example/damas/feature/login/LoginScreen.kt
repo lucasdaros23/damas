@@ -38,7 +38,7 @@ fun LoginScreen(
     )
     EventConsumer(
         viewModel = viewModel,
-        navigateTo = navigate,
+        navigate = navigate,
         navigateAndClearBackStack = navigateAndClearBackStack,
     )
 }
@@ -46,12 +46,12 @@ fun LoginScreen(
 @Composable
 private fun EventConsumer(
     viewModel: LoginViewModel,
-    navigateTo: (String) -> Unit,
+    navigate: (String) -> Unit,
     navigateAndClearBackStack: (String) -> Unit,
 ) = LaunchedEffect(Unit) {
     viewModel.uiEvent.collect { event ->
         when (event) {
-            is ScreenEvent.Navigate -> navigateTo(event.route)
+            is ScreenEvent.Navigate -> navigate(event.route)
             is ScreenEvent.NavigateAndClearBackStack -> navigateAndClearBackStack(event.route)
         }
     }

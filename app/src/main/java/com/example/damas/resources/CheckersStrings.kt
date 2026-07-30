@@ -16,6 +16,12 @@ class CheckersStrings @Inject constructor(
     fun getLoginConfirmButtonText() = resourceProvider.getString(R.string.login_confirm_button_text)
     fun getLoginDialogInexistentNavigationMessage() = resourceProvider.getString(R.string.login_dialog_inexistent_navigation_message)
 
+    // REGISTER
+    fun getRegisterUserNameTextFieldLabel() = resourceProvider.getString(R.string.register_user_name_text_field_label)
+    fun getRegisterEmailTextFieldLabel() = resourceProvider.getString(R.string.register_email_text_field_label)
+    fun getRegisterPasswordTextFieldLabel() = resourceProvider.getString(R.string.register_password_text_field_label)
+    fun getRegisterConfirmPasswordTextFieldLabel() = resourceProvider.getString(R.string.register_confirm_password_text_field_label)
+    fun getRegisterConfirmButtonText() = resourceProvider.getString(R.string.register_confirm_button_text)
 
     // HOME
     fun getHomeLocalGameButton() = resourceProvider.getString(R.string.home_local_game_button)

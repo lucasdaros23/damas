@@ -21,7 +21,8 @@ class LoginViewModel @Inject constructor(
             uiState.update {
                 it.copy(
                     userTextField = LoginUiState.TextInputPresentation(
-                        label = getLoginUserTextFieldLabel()
+                        label = getLoginUserTextFieldLabel(),
+                        type = TextFieldType.EMAIL
                     ),
                     passwordTextField = LoginUiState.TextInputPresentation(
                         label = getLoginPasswordTextFieldLabel(),
@@ -72,8 +73,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun createAccountButtonAction() =
-        // uiEvent.send(event = ScreenEvent.Navigate(Routes.REGISTER))
-        showInexistentNavigationDialog()
+        uiEvent.send(event = ScreenEvent.Navigate(Routes.REGISTER))
 
 
 

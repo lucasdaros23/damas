@@ -9,6 +9,13 @@
     <string name="login_confirm_button_text">Entrar</string>
     <string name="login_dialog_inexistent_navigation_message">Tente entrar como convidado</string>
 
+    <!--  REGISTER  -->
+    <string name="register_user_name_text_field_label">Nome do usuário</string>
+    <string name="register_email_text_field_label">Email</string>
+    <string name="register_password_text_field_label">Senha</string>
+    <string name="register_confirm_password_text_field_label">Confirme a senha</string>
+    <string name="register_confirm_button_text">Confirmar</string>
+
     <!-- HOME -->
     <string name="home_local_game_button">Jogar Local</string>
     <string name="home_online_game_button">Jogar Online</string>
